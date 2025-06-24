@@ -40,7 +40,13 @@ class APIService {
             return data;
         } catch (error) {
             console.error('API request failed:', error);
-            showToast('Failed to fetch data. Please try again.', 'error');
+
+            // Check if it's an API key configuration error
+            if (error.message.includes('500') && url.includes('/api/')) {
+                showToast('API keys not configured. Please check the README for setup instructions.', 'warning');
+            } else {
+                showToast('Failed to fetch data. Please try again.', 'error');
+            }
             throw error;
         } finally {
             showLoading(false);
@@ -77,14 +83,32 @@ class APIService {
 
     // Get trending content
     async getTrending(timeWindow = 'day') {
-        const url = `/api/trending?time_window=${timeWindow}`;
-        return await this.makeRequest(url);
+        try {
+            const url = `/api/trending?time_window=${timeWindow}`;
+            return await this.makeRequest(url);
+        } catch (error) {
+            // Return demo data if API fails
+            if (typeof DEMO_DATA !== 'undefined') {
+                enableDemoMode();
+                return DEMO_DATA.trending;
+            }
+            throw error;
+        }
     }
 
     // Get genres
     async getGenres() {
-        const url = '/api/genres';
-        return await this.makeRequest(url);
+        try {
+            const url = '/api/genres';
+            return await this.makeRequest(url);
+        } catch (error) {
+            // Enable demo mode and return demo data
+            if (typeof enableDemoMode === 'function') {
+                enableDemoMode();
+                return DEMO_DATA.genres;
+            }
+            throw error;
+        }
     }
 
     // Clear cache

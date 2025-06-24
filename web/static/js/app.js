@@ -159,13 +159,25 @@ class MovieDiscoveryApp {
             // Load genres
             this.genres = await apiService.getGenres();
             this.populateGenreFilter();
-            
+
+        } catch (error) {
+            console.error('Failed to load genres:', error);
+            // Continue without genres - the app should still work
+            this.genres = { movie: [], tv: [] };
+        }
+
+        try {
             // Load trending content for home page
             await this.loadTrendingPreview();
-            
+
         } catch (error) {
-            console.error('Failed to load initial data:', error);
-            showToast('Failed to load initial data', 'error');
+            console.error('Failed to load trending preview:', error);
+            // The API service will handle demo mode automatically
+        }
+
+        // Check if we're in demo mode and show indicator
+        if (typeof checkDemoMode === 'function' && checkDemoMode()) {
+            this.showDemoModeIndicator();
         }
     }
 
@@ -705,6 +717,28 @@ class MovieDiscoveryApp {
         if (query) {
             this.performSearch(query);
         }
+    }
+
+    showDemoModeIndicator() {
+        // Add demo mode indicator to the page
+        const indicator = document.createElement('div');
+        indicator.className = 'demo-mode-indicator';
+        indicator.innerHTML = `
+            <div class="demo-content">
+                <i class="fas fa-info-circle"></i>
+                <span>Demo Mode: Using sample data. Add API keys for full functionality.</span>
+                <button onclick="this.parentElement.parentElement.remove()" class="demo-close">×</button>
+            </div>
+        `;
+
+        document.body.appendChild(indicator);
+
+        // Auto-hide after 10 seconds
+        setTimeout(() => {
+            if (indicator.parentElement) {
+                indicator.remove();
+            }
+        }, 10000);
     }
 }
 

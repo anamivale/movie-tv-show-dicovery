@@ -189,16 +189,16 @@ class WatchlistManager {
         const watchedIcon = item.watched ? 'fas fa-check-circle' : 'far fa-circle';
 
         return `
-            <div class="movie-card watchlist-item ${watchedClass}" data-id="${item.id}" data-type="${item.media_type}">
-                <img src="${posterUrl}" alt="${sanitizeHTML(item.title)}" class="movie-poster" 
+            <div class="movie-card watchlist-item ${watchedClass}" data-id="${item.id}" data-type="${item.media_type}" onclick="app.showDetails(${item.id}, '${item.media_type}')">
+                <img src="${posterUrl}" alt="${sanitizeHTML(item.title)}" class="movie-poster"
                      onerror="handleImageError(this, 'No Poster')">
-                
+
                 <div class="watchlist-controls">
-                    <button class="watchlist-btn remove-btn" onclick="watchlistManager.removeFromWatchlist(${item.id}, '${item.media_type}')" 
+                    <button class="watchlist-btn remove-btn" onclick="event.stopPropagation(); watchlistManager.removeFromWatchlist(${item.id}, '${item.media_type}')"
                             title="Remove from watchlist">
                         <i class="fas fa-times"></i>
                     </button>
-                    <button class="watched-btn" onclick="watchlistManager.toggleWatched(${item.id}, '${item.media_type}')" 
+                    <button class="watched-btn" onclick="event.stopPropagation(); watchlistManager.toggleWatched(${item.id}, '${item.media_type}')"
                             title="${item.watched ? 'Mark as unwatched' : 'Mark as watched'}">
                         <i class="${watchedIcon}"></i>
                     </button>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Discovery App</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-film"></i>
+                <span>MovieDiscover</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link active" data-section="home">Home</a>
+                <a href="#" class="nav-link" data-section="search">Search</a>
+                <a href="#" class="nav-link" data-section="watchlist">My Watchlist</a>
+                <a href="#" class="nav-link" data-section="trending">Trending</a>
+            </div>
+            <div class="theme-toggle">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <h1>Discover Your Next Favorite Movie or TV Show</h1>
+                <p>Search through millions of titles, create your watchlist, and never miss a great story</p>
+                <div class="search-container">
+                    <input type="text" id="hero-search" placeholder="Search for movies or TV shows...">
+                    <button id="hero-search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            
+            <div class="trending-preview">
+                <h2>Trending Now</h2>
+                <div id="trending-carousel" class="carousel">
+                    <!-- Trending items will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Section -->
+        <section id="search" class="section">
+            <div class="search-header">
+                <h2>Search Movies & TV Shows</h2>
+                <div class="search-controls">
+                    <input type="text" id="search-input" placeholder="Enter movie or TV show title...">
+                    <select id="content-type">
+                        <option value="multi">All</option>
+                        <option value="movie">Movies</option>
+                        <option value="tv">TV Shows</option>
+                    </select>
+                    <select id="genre-filter">
+                        <option value="">All Genres</option>
+                    </select>
+                </div>
+            </div>
+            <div id="search-results" class="results-grid">
+                <!-- Search results will be displayed here -->
+            </div>
+            <div id="pagination" class="pagination">
+                <!-- Pagination controls will be added here -->
+            </div>
+        </section>
+
+        <!-- Watchlist Section -->
+        <section id="watchlist" class="section">
+            <div class="watchlist-header">
+                <h2>My Watchlist</h2>
+                <div class="watchlist-stats">
+                    <span id="watchlist-count">0 items</span>
+                    <button id="export-watchlist" class="btn-secondary">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+            <div class="watchlist-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="unwatched">To Watch</button>
+                <button class="filter-btn" data-filter="watched">Watched</button>
+            </div>
+            <div id="watchlist-content" class="results-grid">
+                <!-- Watchlist items will be displayed here -->
+            </div>
+        </section>
+
+        <!-- Trending Section -->
+        <section id="trending" class="section">
+            <div class="trending-header">
+                <h2>Trending Content</h2>
+                <div class="trending-tabs">
+                    <button class="tab-btn active" data-tab="day">Today</button>
+                    <button class="tab-btn" data-tab="week">This Week</button>
+                </div>
+            </div>
+            <div id="trending-content" class="results-grid">
+                <!-- Trending content will be displayed here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Movie/TV Show Detail Modal -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="detail-content">
+                <!-- Detailed information will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/watchlist.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

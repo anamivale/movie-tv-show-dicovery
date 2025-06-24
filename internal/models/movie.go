@@ -56,6 +56,7 @@ type MovieDetails struct {
 	ProductionCountries []ProductionCountry `json:"production_countries"`
 	Credits             *Credits            `json:"credits,omitempty"`
 	ExternalIDs         *ExternalIDs        `json:"external_ids,omitempty"`
+	Videos              *VideosResponse     `json:"videos,omitempty"`
 	OMDBData            *OMDBResponse       `json:"omdb_data,omitempty"`
 }
 
@@ -86,6 +87,7 @@ type TVDetails struct {
 	Seasons             []Season            `json:"seasons"`
 	Credits             *Credits            `json:"credits,omitempty"`
 	ExternalIDs         *ExternalIDs        `json:"external_ids,omitempty"`
+	Videos              *VideosResponse     `json:"videos,omitempty"`
 	OMDBData            *OMDBResponse       `json:"omdb_data,omitempty"`
 }
 
@@ -193,6 +195,26 @@ type TrendingResponse struct {
 // GenreResponse represents the genres API response
 type GenreResponse struct {
 	Genres []Genre `json:"genres"`
+}
+
+// Video represents a video (trailer, teaser, etc.)
+type Video struct {
+	ID          string `json:"id"`
+	ISO6391     string `json:"iso_639_1"`
+	ISO31661    string `json:"iso_3166_1"`
+	Key         string `json:"key"`
+	Name        string `json:"name"`
+	Site        string `json:"site"`
+	Size        int    `json:"size"`
+	Type        string `json:"type"`
+	Official    bool   `json:"official"`
+	PublishedAt string `json:"published_at"`
+}
+
+// VideosResponse represents the videos API response
+type VideosResponse struct {
+	ID      int     `json:"id"`
+	Results []Video `json:"results"`
 }
 
 // OMDBResponse represents response from OMDB API

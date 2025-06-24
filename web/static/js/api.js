@@ -43,7 +43,11 @@ class APIService {
 
             // Check if it's an API key configuration error
             if (error.message.includes('500') && url.includes('/api/')) {
-                showToast('API keys not configured. Please check the README for setup instructions.', 'warning');
+                showToast('API keys not configured. Using demo mode with sample data.', 'warning');
+                enableDemoMode();
+            } else if (error.message.includes('TMDB API key not configured')) {
+                showToast('TMDB API key not configured. Please add your API key to the .env file.', 'warning');
+                enableDemoMode();
             } else {
                 showToast('Failed to fetch data. Please try again.', 'error');
             }
@@ -59,14 +63,32 @@ class APIService {
             return { results: [], total_pages: 0, total_results: 0 };
         }
 
-        const params = new URLSearchParams({
-            q: query.trim(),
-            type: type,
-            page: page.toString()
-        });
+        try {
+            const params = new URLSearchParams({
+                q: query.trim(),
+                type: type,
+                page: page.toString()
+            });
 
-        const url = `/api/search?${params.toString()}`;
-        return await this.makeRequest(url);
+            const url = `/api/search?${params.toString()}`;
+            return await this.makeRequest(url);
+        } catch (error) {
+            // If API fails, return demo data filtered by query
+            if (typeof DEMO_DATA !== 'undefined' && checkDemoMode()) {
+                console.log('Search API failed, using demo data');
+                const filteredResults = DEMO_DATA.trending.results.filter(item => {
+                    const title = item.title || item.name || '';
+                    return title.toLowerCase().includes(query.toLowerCase());
+                });
+                return {
+                    results: filteredResults,
+                    total_pages: 1,
+                    total_results: filteredResults.length,
+                    page: 1
+                };
+            }
+            throw error;
+        }
     }
 
     // Get movie details
@@ -89,6 +111,7 @@ class APIService {
         } catch (error) {
             // Return demo data if API fails
             if (typeof DEMO_DATA !== 'undefined') {
+                console.log('API failed, switching to demo mode for trending content');
                 enableDemoMode();
                 return DEMO_DATA.trending;
             }
@@ -103,7 +126,8 @@ class APIService {
             return await this.makeRequest(url);
         } catch (error) {
             // Enable demo mode and return demo data
-            if (typeof enableDemoMode === 'function') {
+            if (typeof enableDemoMode === 'function' && typeof DEMO_DATA !== 'undefined') {
+                console.log('API failed, switching to demo mode for genres');
                 enableDemoMode();
                 return DEMO_DATA.genres;
             }

@@ -486,6 +486,7 @@ class MovieDiscoveryApp {
                             <i class="fas ${isInWatchlist ? 'fa-check' : 'fa-plus'}"></i>
                             ${isInWatchlist ? 'In Watchlist' : 'Add to Watchlist'}
                         </button>
+                        ${this.renderTrailerButton(details)}
                     </div>
                 </div>
             </div>
@@ -603,6 +604,112 @@ class MovieDiscoveryApp {
         }
 
         return additionalInfo;
+    }
+
+    renderTrailerButton(details) {
+        if (!details.videos || !details.videos.results || details.videos.results.length === 0) {
+            return '';
+        }
+
+        // Find the best trailer (prefer official trailers from YouTube)
+        const trailer = this.findBestTrailer(details.videos.results);
+        if (!trailer) {
+            return '';
+        }
+
+        return `
+            <button class="btn-secondary trailer-btn" onclick="app.showTrailer('${trailer.key}', '${trailer.site}', '${sanitizeHTML(trailer.name)}')">
+                <i class="fas fa-play"></i>
+                Watch Trailer
+            </button>
+        `;
+    }
+
+    findBestTrailer(videos) {
+        // Priority: Official trailers > Trailers > Teasers > Other
+        const priorities = ['Trailer', 'Teaser', 'Clip', 'Featurette'];
+
+        for (const type of priorities) {
+            // First try to find official videos of this type from YouTube
+            const officialVideo = videos.find(video =>
+                video.type === type &&
+                video.official === true &&
+                video.site === 'YouTube'
+            );
+            if (officialVideo) return officialVideo;
+
+            // Then try any video of this type from YouTube
+            const youtubeVideo = videos.find(video =>
+                video.type === type &&
+                video.site === 'YouTube'
+            );
+            if (youtubeVideo) return youtubeVideo;
+        }
+
+        // Fallback to any YouTube video
+        return videos.find(video => video.site === 'YouTube') || null;
+    }
+
+    showTrailer(videoKey, site, title) {
+        if (site !== 'YouTube') {
+            showToast('Only YouTube trailers are supported', 'warning');
+            return;
+        }
+
+        const modal = document.getElementById('trailer-modal');
+        const iframe = document.getElementById('trailer-iframe');
+        const titleElement = document.getElementById('trailer-title');
+
+        if (!modal || !iframe || !titleElement) {
+            // Create trailer modal if it doesn't exist
+            this.createTrailerModal();
+            return this.showTrailer(videoKey, site, title);
+        }
+
+        titleElement.textContent = title;
+        iframe.src = `https://www.youtube.com/embed/${videoKey}?autoplay=1&rel=0`;
+        modal.style.display = 'block';
+    }
+
+    createTrailerModal() {
+        const modalHTML = `
+            <div id="trailer-modal" class="modal trailer-modal">
+                <div class="modal-content trailer-content">
+                    <div class="trailer-header">
+                        <h3 id="trailer-title">Trailer</h3>
+                        <span class="close trailer-close">&times;</span>
+                    </div>
+                    <div class="trailer-video">
+                        <iframe id="trailer-iframe"
+                                width="100%"
+                                height="100%"
+                                frameborder="0"
+                                allowfullscreen
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // Add event listeners
+        const modal = document.getElementById('trailer-modal');
+        const closeBtn = modal.querySelector('.trailer-close');
+        const iframe = document.getElementById('trailer-iframe');
+
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            iframe.src = ''; // Stop video playback
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                iframe.src = ''; // Stop video playback
+            }
+        });
     }
 
     toggleWatchlist(id, mediaType) {

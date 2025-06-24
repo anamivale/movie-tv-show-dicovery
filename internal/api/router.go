@@ -3,9 +3,10 @@ package api
 import (
 	"encoding/json"
 	"html/template"
-	"movie-discovery-app/internals/services"
 	"net/http"
 	"path/filepath"
+
+	"movie-discovery-app/internal/services"
 )
 
 type Router struct {

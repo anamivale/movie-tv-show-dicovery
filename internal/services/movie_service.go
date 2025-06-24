@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"movie-discovery-app/internals/models"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
+
+	"movie-discovery-app/internal/models"
 )
 
 type MovieService struct {
@@ -47,10 +48,9 @@ func (s *MovieService) Search(query, contentType, page string) (*models.SearchRe
 	}
 
 	endpoint := "search/multi"
-	switch contentType {
-case "movie":
+	if contentType == "movie" {
 		endpoint = "search/movie"
-	case "tv":
+	} else if contentType == "tv" {
 		endpoint = "search/tv"
 	}
 

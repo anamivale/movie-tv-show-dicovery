@@ -1,4 +1,4 @@
-# movie-tv-show-dicovery
+# movie-tv-show-discovery
 
 A comprehensive entertainment discovery platform built with Go backend and vanilla JavaScript frontend.
 
@@ -21,8 +21,8 @@ A comprehensive entertainment discovery platform built with Go backend and vanil
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/anamivale/movie-tv-show-dicovery.git
-   cd movie-tv-show-dicovery
+   git clone https://github.com/anamivale/movie-tv-show-discovery.git
+   cd movie-tv-show-discovery
    ```
 
 2. **Get API Keys**
@@ -38,13 +38,14 @@ A comprehensive entertainment discovery platform built with Go backend and vanil
 
 3. **Configure Environment Variables**
    ```bash
-   cd /configs
-   code .env
+   cd configs
+   cp .env.example .env
    ```
    Edit `.env` and replace the placeholder values:
    ```
    TMDB_API_KEY=your_actual_tmdb_api_key_here
    OMDB_API_KEY=your_actual_omdb_api_key_here
+   PORT=8080
    ```
 
 4. **Install Dependencies**

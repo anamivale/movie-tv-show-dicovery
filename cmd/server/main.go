@@ -19,8 +19,8 @@ func main() {
 	router := api.NewRouter()
 
 	// Start server
-	fmt.Printf("🎬 Movie Discovery App starting on port %s\n", port)
-	fmt.Printf("🌐 Open http://localhost:%s in your browser\n", port)
+	fmt.Printf("Movie Discovery App starting on port %s\n", port)
+	fmt.Printf("Open http://localhost:%s in your browser\n", port)
 
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

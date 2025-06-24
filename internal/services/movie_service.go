@@ -103,7 +103,7 @@ func (s *MovieService) GetMovieDetails(id string) (*models.MovieDetails, error) 
 
 	params := url.Values{}
 	params.Add("api_key", s.tmdbAPIKey)
-	params.Add("append_to_response", "credits,external_ids")
+	params.Add("append_to_response", "credits,external_ids,videos")
 
 	url := fmt.Sprintf("%s/movie/%s?%s", s.tmdbBaseURL, id, params.Encode())
 
@@ -163,7 +163,7 @@ func (s *MovieService) GetTVDetails(id string) (*models.TVDetails, error) {
 
 	params := url.Values{}
 	params.Add("api_key", s.tmdbAPIKey)
-	params.Add("append_to_response", "credits,external_ids")
+	params.Add("append_to_response", "credits,external_ids,videos")
 
 	url := fmt.Sprintf("%s/tv/%s?%s", s.tmdbBaseURL, id, params.Encode())
 

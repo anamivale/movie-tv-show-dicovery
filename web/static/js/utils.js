@@ -15,14 +15,23 @@ function showToast(message, type = 'info', duration = 3000) {
 
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'polite');
     toast.innerHTML = `
         <div class="toast-content">
             <span>${message}</span>
-            <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            <button class="toast-close" onclick="this.parentElement.parentElement.remove()"
+                    aria-label="Close notification" title="Close">×</button>
         </div>
     `;
 
     container.appendChild(toast);
+
+    // Focus management for accessibility
+    if (type === 'error') {
+        toast.setAttribute('aria-live', 'assertive');
+        toast.focus();
+    }
 
     // Auto remove after duration
     setTimeout(() => {
@@ -206,9 +215,10 @@ const ThemeManager = {
     setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         Storage.set('theme', theme);
-        
+
         const themeIcon = document.getElementById('theme-icon');
         if (themeIcon) {
+            // Show sun icon in dark mode (to switch to light), moon icon in light mode (to switch to dark)
             themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
         }
     },

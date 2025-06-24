@@ -182,23 +182,29 @@ class WatchlistManager {
     }
 
     createWatchlistItemHTML(item) {
-        const posterUrl = item.poster_path || getPlaceholderImage(200, 300);
+        // Handle poster URL
+        let posterUrl = item.poster_path;
+        if (posterUrl && !posterUrl.startsWith('http') && !posterUrl.startsWith('data:')) {
+            posterUrl = `https://image.tmdb.org/t/p/w500${posterUrl}`;
+        } else if (!posterUrl) {
+            posterUrl = getPlaceholderImage(200, 300);
+        }
+
         const year = getDisplayYear(item.release_date);
-        const rating = formatRating(item.vote_average);
         const watchedClass = item.watched ? 'watched' : '';
         const watchedIcon = item.watched ? 'fas fa-check-circle' : 'far fa-circle';
 
         return `
             <div class="movie-card watchlist-item ${watchedClass}" data-id="${item.id}" data-type="${item.media_type}">
-                <img src="${posterUrl}" alt="${sanitizeHTML(item.title)}" class="movie-poster" 
-                     onerror="handleImageError(this, 'No Poster')">
-                
+                <img src="${posterUrl}" alt="${sanitizeHTML(item.title)}" class="movie-poster"
+                     onerror="handleImageError(this, 'No Poster')" loading="lazy">
+
                 <div class="watchlist-controls">
-                    <button class="watchlist-btn remove-btn" onclick="watchlistManager.removeFromWatchlist(${item.id}, '${item.media_type}')" 
+                    <button class="watchlist-btn remove-btn" onclick="watchlistManager.removeFromWatchlist(${item.id}, '${item.media_type}')"
                             title="Remove from watchlist">
                         <i class="fas fa-times"></i>
                     </button>
-                    <button class="watched-btn" onclick="watchlistManager.toggleWatched(${item.id}, '${item.media_type}')" 
+                    <button class="watched-btn" onclick="watchlistManager.toggleWatched(${item.id}, '${item.media_type}')"
                             title="${item.watched ? 'Mark as unwatched' : 'Mark as watched'}">
                         <i class="${watchedIcon}"></i>
                     </button>

@@ -34,17 +34,40 @@ class MovieDiscoveryApp {
 
     setupNavigation() {
         const navLinks = document.querySelectorAll('.nav-link');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        // Mobile menu toggle
+        if (mobileMenuToggle && navMenu) {
+            mobileMenuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const icon = mobileMenuToggle.querySelector('i');
+                if (icon) {
+                    icon.className = navMenu.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
+                }
+            });
+        }
+
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                
+
                 // Remove active class from all links
                 navLinks.forEach(l => l.classList.remove('active'));
                 // Add active class to clicked link
                 e.target.classList.add('active');
-                
+
                 const section = e.target.getAttribute('data-section');
                 this.showSection(section);
+
+                // Close mobile menu after selection
+                if (navMenu && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    const icon = mobileMenuToggle?.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-bars';
+                    }
+                }
             });
         });
     }
@@ -235,7 +258,16 @@ class MovieDiscoveryApp {
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.classList.add('active');
-            
+
+            // Update navigation active state
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === sectionId) {
+                    link.classList.add('active');
+                }
+            });
+
             // Load section-specific data
             if (sectionId === 'watchlist') {
                 watchlistManager.displayWatchlist();
@@ -319,19 +351,31 @@ class MovieDiscoveryApp {
     createMovieCardHTML(item) {
         const title = getDisplayTitle(item);
         const year = getDisplayYear(getDisplayDate(item));
-        const posterUrl = item.poster_path || getPlaceholderImage(200, 300);
+        // Handle poster URL - check if it's already a full URL or needs base URL
+        let posterUrl = item.poster_path;
+        if (posterUrl && !posterUrl.startsWith('http') && !posterUrl.startsWith('data:')) {
+            posterUrl = `https://image.tmdb.org/t/p/w500${posterUrl}`;
+        } else if (!posterUrl) {
+            posterUrl = getPlaceholderImage(200, 300);
+        }
+
         const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
         const mediaType = item.media_type || (item.title ? 'movie' : 'tv');
         const isInWatchlist = watchlistManager.isInWatchlist(item.id, mediaType);
 
         return `
-            <div class="movie-card" data-id="${item.id}" data-type="${mediaType}" onclick="app.showDetails(${item.id}, '${mediaType}')">
+            <div class="movie-card" data-id="${item.id}" data-type="${mediaType}"
+                 onclick="app.showDetails(${item.id}, '${mediaType}')"
+                 onkeydown="if(event.key==='Enter'||event.key===' ') app.showDetails(${item.id}, '${mediaType}')"
+                 tabindex="0" role="button" aria-label="View details for ${sanitizeHTML(title)}">
                 <img src="${posterUrl}" alt="${sanitizeHTML(title)}" class="movie-poster"
-                     onerror="handleImageError(this, 'No Poster')">
+                     onerror="handleImageError(this, 'No Poster')" loading="lazy">
 
                 <button class="watchlist-btn ${isInWatchlist ? 'added' : ''}"
                         onclick="event.stopPropagation(); app.toggleWatchlist(${item.id}, '${mediaType}')"
-                        title="${isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}">
+                        onkeydown="event.stopPropagation();"
+                        title="${isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}"
+                        aria-label="${isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}">
                     <i class="fas ${isInWatchlist ? 'fa-check' : 'fa-plus'}"></i>
                 </button>
 
@@ -454,8 +498,23 @@ class MovieDiscoveryApp {
 
         const title = getDisplayTitle(details);
         const year = getDisplayYear(getDisplayDate(details));
-        const backdropUrl = details.backdrop_path || details.poster_path || getPlaceholderImage(800, 450);
-        const posterUrl = details.poster_path || getPlaceholderImage(300, 450);
+
+        // Handle backdrop URL
+        let backdropUrl = details.backdrop_path || details.poster_path;
+        if (backdropUrl && !backdropUrl.startsWith('http') && !backdropUrl.startsWith('data:')) {
+            backdropUrl = `https://image.tmdb.org/t/p/w1280${backdropUrl}`;
+        } else if (!backdropUrl) {
+            backdropUrl = getPlaceholderImage(800, 450);
+        }
+
+        // Handle poster URL
+        let posterUrl = details.poster_path;
+        if (posterUrl && !posterUrl.startsWith('http') && !posterUrl.startsWith('data:')) {
+            posterUrl = `https://image.tmdb.org/t/p/w500${posterUrl}`;
+        } else if (!posterUrl) {
+            posterUrl = getPlaceholderImage(300, 450);
+        }
+
         const rating = details.vote_average ? details.vote_average.toFixed(1) : 'N/A';
         const isInWatchlist = watchlistManager.isInWatchlist(details.id, mediaType);
 
@@ -522,15 +581,24 @@ class MovieDiscoveryApp {
             <div class="detail-section">
                 <h3>Cast</h3>
                 <div class="cast-grid">
-                    ${cast.map(member => `
-                        <div class="cast-member">
-                            <img src="${member.profile_path || getPlaceholderImage(80, 80, 'No Photo')}"
-                                 alt="${sanitizeHTML(member.name)}" class="cast-photo"
-                                 onerror="handleImageError(this, 'No Photo')">
-                            <div class="cast-name">${sanitizeHTML(member.name)}</div>
-                            <div class="cast-character">${sanitizeHTML(member.character || '')}</div>
-                        </div>
-                    `).join('')}
+                    ${cast.map(member => {
+                        let profileUrl = member.profile_path;
+                        if (profileUrl && !profileUrl.startsWith('http') && !profileUrl.startsWith('data:')) {
+                            profileUrl = `https://image.tmdb.org/t/p/w185${profileUrl}`;
+                        } else if (!profileUrl) {
+                            profileUrl = getPlaceholderImage(80, 80, 'No Photo');
+                        }
+
+                        return `
+                            <div class="cast-member">
+                                <img src="${profileUrl}"
+                                     alt="${sanitizeHTML(member.name)}" class="cast-photo"
+                                     onerror="handleImageError(this, 'No Photo')" loading="lazy">
+                                <div class="cast-name">${sanitizeHTML(member.name)}</div>
+                                <div class="cast-character">${sanitizeHTML(member.character || '')}</div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             </div>
         `;
